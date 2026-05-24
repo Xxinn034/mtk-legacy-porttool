@@ -1,0 +1,11 @@
+__pycache__/ 
+*.pyc 
+build/ 
+dist/ 
+*.spec 
+tmp/ 
+out/ 
+base/ 
+bug_fix_output/ 
+twrp_output/ 
+*.egg-info/ 
