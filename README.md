@@ -22,7 +22,7 @@ This is a ROM porting assistance tool specifically designed for MTK low-end chip
 
 **4. 解决了工具无法识别并解包sparse镜像的问题 /  Fixed the issue where the tool could not recognize and unpack sparse images
 
-**上一版的更新内容by coolzyd / Changes in the last update by 
+**上一版的更新内容by LJY-33684/ Changes in the last update by LJY-33684
 
 **1. 多源支持 / Multi-Source Support：** 
 - 移植源可选： ZIP卡刷包  /  单独boot.img+system.img 
@@ -140,7 +140,7 @@ This tool is intended only for technical learning and exchange regarding ROM por
 
 原作者/Original Author [@affggh](https://github.com/affggh)
 
-# 感谢上一个改进者lzy
+# 感谢上一个改进者LJY-33684
 
 # 改进者QQ/邮箱 / Improver's QQ/Email
 
