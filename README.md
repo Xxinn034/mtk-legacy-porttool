@@ -129,32 +129,6 @@ The tool automatically executes the following steps:
 **3. 其他说明 / Other Notes：**
 - 输出ZIP卡刷包时，仅支持以ZIP卡刷包作为移植源
 - When outputting a ZIP flashable package, only a ZIP flashable package is supported as the donor source.
- 
-# 常见问题 / FAQ
- 
-Q：点击“一键移植”后按钮变灰，无其他反应？
-
-A：这是防止重复执行的机制，工具正在后台处理流程，可通过“日志输出”查看进度。
- 
-Q：ADB调试未生效？
-
-A：工具会优先修改 system/build.prop 中的 ro.debuggable 等配置，若未生效可手动检查该文件。
- 
-Q：镜像生成失败？
-
-A：检查 bin 目录下的工具是否与当前系统平台匹配（如Windows对应 win/x86_64 目录）。
-
-Q: After clicking "One-Click Porting", the button turns gray and there's no other response?
-
-A: This is a mechanism to prevent repeated execution. The tool is processing in the background. Check the progress via the "Log Output".
-
-Q: ADB debugging doesn't take effect?
-
-A: The tool prioritizes modifying configurations like ro.debuggable in system/build.prop. If it doesn't work, manually check that file.
-
-Q: Image generation failed?
-
-A: Check if the tools in the bin directory match your system platform (e.g., Windows corresponds to the win/x86_64 directory).
 
 # 免责声明 / Disclaimer
  
@@ -162,41 +136,11 @@ A: Check if the tools in the bin directory match your system platform (e.g., Win
 
 This tool is intended only for technical learning and exchange regarding ROM porting. Do not use it for infringing on others' intellectual property rights or violating device manufacturer agreements. The developer bears no responsibility for device damage, data loss, or other issues arising from the use of this tool.
 
-# 软件截图 / Software Screenshots
-<img width="943" height="456" alt="image" src="https://github.com/user-attachments/assets/5985d82c-78c2-46db-9702-158014caa543" />
-
-
-<img width="948" height="471" alt="image" src="https://github.com/user-attachments/assets/0e5c8c30-8d12-4595-8ac2-37519ad6979f" />
-
-
 # 感谢[@affggh](https://github.com/affggh)分享的原文件，此移植工具基于原工具进行的改进 / Thanks to [@affggh](https://github.com/affggh) for sharing the original files. This porting tool is an improvement based on the original tool.
 
 原作者/Original Author [@affggh](https://github.com/affggh)
 
-# 感谢上一个改进者
-
-
-# 基于原文件的主要改动 / Major Changes Based on the Original Files
-
-1.修复了处理build.prop文件时遇到非utf-8字符导致报错
-
-1.Fixed errors caused by non-UTF-8 characters when processing the build.prop file.
-
-2.新增了单独system和boot镜像移植为img镜像的功能
-
-2.Added the function to port separate system and boot images into img images.
-
-3.优化了输出日志的描述
-
-3.Optimized the description of the output logs.
-
-4.解决了工具在报错时无法自动删除临时文件以及漏删base文件夹
-
-4.Fixed the issue where the tool failed to automatically delete temporary files and leaked the base folder upon error.
-
-5.解决了重复点击“一键移植”按钮会弹出多个窗口的问题
-
-5.Fixed the issue where repeated clicks on the "One-Click Porting" button would open multiple windows.
+# 感谢上一个改进者lzy
 
 # 改进者QQ/邮箱 / Improver's QQ/Email
 
