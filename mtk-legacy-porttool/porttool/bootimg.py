@@ -9,6 +9,7 @@ import hashlib
 from stat import *
 import shutil
 from gzip import GzipFile
+import io
 
 
 def sha_file(sha, file):
@@ -136,9 +137,22 @@ def parse_bootimg(bootimg):
 
         Note: padding_size is not equal to page_size in HuaWei C8600
     """
+    # ------------------------------------------------------------
+    # 自动搜索 ANDROID! 魔数，跳过任何前缀（如 MTK 头部）
+    # ------------------------------------------------------------
+    bootimg.seek(0, 0)
+    data = bootimg.read()
+    android_pos = data.find(b'ANDROID!')
+    if android_pos == -1:
+        raise ValueError('Could not find ANDROID! magic in boot.img')
+    if android_pos != 0:
+        sys.stderr.write('Found ANDROID! at offset 0x%x, skipping %d bytes.\n' % (android_pos, android_pos))
+        bootimg.seek(android_pos, 0)
+    else:
+        bootimg.seek(0, 0)
+    # ------------------------------------------------------------
 
     bootinfo = open('bootinfo.txt', 'w')
-    #check_mtk_head(bootimg, bootinfo)
 
     (magic,
      kernel_size, kernel_addr,
@@ -216,7 +230,6 @@ def parse_bootimg(bootimg):
         output = open('dt_image%s' % gzname(dt_image[:3]) , 'wb')
         output.write(dt_image)
         output.close()
-#        bootimg.seek(padding(second_size), 1)
 
     bootimg.close()
 
@@ -758,27 +771,54 @@ def unpack_ramdisk(ramdisk=None, directory=None):
     if os.path.lexists(directory):
         raise SystemExit('please remove %s' % directory)
 
-    tmp = open(ramdisk, 'rb')
-    cpiolist = open('cpiolist.txt', 'w', encoding='utf8')
-    check_mtk_head(tmp, cpiolist)
-    pos = tmp.tell()
+    # 打开文件
+    f = open(ramdisk, 'rb')
+    # 检查 MTK 头部（如果有）
+    check_mtk_head(f, sys.stderr)
+    f.seek(0)  # 复位
 
+    # 读取前 6 字节判断格式
+    header = f.read(6)
+    f.seek(0)
     compress_level = 0
-    magic = tmp.read(6)
-    if magic[:3] == struct.pack('3B', 0x1f, 0x8b, 0x08):
-        tmp.seek(pos, 0)
-        compress_level = 6
-        cpio = CPIOGZIP(None, 'rb', compress_level, tmp)
-    elif magic.decode('latin') == '070701':
-        tmp.seek(pos, 0)
-        cpio = tmp
-    else:
-        tmp.close()
-        raise IOError('invalid ramdisk')
 
+    if header[:3] == b'\x1f\x8b\x08':
+        # gzip
+        import gzip
+        sys.stderr.write('Detected gzip compressed ramdisk\n')
+        gz = gzip.GzipFile(fileobj=f)
+        cpio_data = gz.read()
+        gz.close()
+        cpio = io.BytesIO(cpio_data)
+        compress_level = 6
+    elif header[:6] == b'070701':
+        # raw cpio
+        sys.stderr.write('Detected raw cpio ramdisk\n')
+        cpio = f
+        compress_level = 0
+    else:
+        # try lz4
+        try:
+            import lz4.frame
+            data = f.read()
+            decompressed = lz4.frame.decompress(data)
+            cpio = io.BytesIO(decompressed)
+            compress_level = 0
+            sys.stderr.write('Detected lz4 compressed ramdisk\n')
+        except Exception as e:
+            # 无法识别，复制原始文件并跳过解包
+            sys.stderr.write('Unsupported ramdisk format (%s), copying raw file\n' % str(e))
+            os.makedirs(directory, exist_ok=True)
+            shutil.copy2(ramdisk, os.path.join(directory, 'ramdisk.raw'))
+            with open('cpiolist.txt', 'w') as c:
+                c.write('compress_level:0\n')
+            f.close()
+            return
+
+    cpiolist = open('cpiolist.txt', 'w', encoding='utf8')
     cpiolist.write('compress_level:%d\n' % compress_level)
-    sys.stderr.write('compress: %s\n' % (compress_level > 0))
     parse_cpio(cpio, directory, cpiolist)
+    f.close()
 
 
 def repack_ramdisk(cpiolist=None):
